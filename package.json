@@ -1,0 +1,12 @@
+{
+  "name": "ardyclassic-hotel-pos",
+  "version": "1.0.0",
+  "description": "Ardyclassic Hotel POS System",
+  "main": "index.js",
+  "scripts": {
+    "generate-images": "node generate-images.js"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2"
+  }
+}

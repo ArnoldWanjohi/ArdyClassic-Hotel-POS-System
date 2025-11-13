@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ardyclassic Hotel POS</title>
+    <link rel="stylesheet" href="ardyclassic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">Ardyclassic Hotel</div>
+            <div class="user-info">
+                <span id="current-user">Cashier: Admin</span>
+                <span id="current-time"></span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Menu Section -->
+            <div class="menu-section">
+                <!-- Categories -->
+                <div class="menu-categories">
+                    <h3>Categories</h3>
+                    <ul id="category-list">
+                        <li class="active" data-category="all">All Items</li>
+                        <li data-category="food">Food</li>
+                        <li data-category="drinks">Drinks</li>
+                        <li data-category="desserts">Desserts</li>
+                    </ul>
+                </div>
+
+                <!-- Menu Items -->
+                <div class="menu-items">
+                    <div class="search-bar">
+                        <input type="text" id="search-item" placeholder="Search menu items...">
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="items-grid" id="menu-items-container">
+                        <!-- Menu items will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Order Summary -->
+            <div class="order-summary">
+                <div class="order-header">
+                    <h3>Order #<span id="order-number">1001</span></h3>
+                    <div class="order-tabs">
+                        <button class="tab-btn active" data-tab="dine-in">Dine In</button>
+                        <button class="tab-btn" data-tab="take-away">Take Away</button>
+                    </div>
+                </div>
+
+                <div class="table-selection" id="table-selection">
+                    <label for="table-number">Table:</label>
+                    <select id="table-number">
+                        <option value="">Select Table</option>
+                        <option value="1">Table 1</option>
+                        <option value="2">Table 2</option>
+                        <option value="3">Table 3</option>
+                        <option value="4">Table 4</option>
+                        <option value="5">Table 5</option>
+                        <option value="counter">Counter Sale</option>
+                    </select>
+                </div>
+
+                <div class="order-items" id="order-items">
+                    <!-- Ordered items will be listed here -->
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <p>Your order is empty</p>
+                        <p>Add items to get started</p>
+                    </div>
+                </div>
+
+                <div class="order-totals">
+                    <div class="subtotal">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">KSh 0.00</span>
+                    </div>
+                    <div class="tax">
+                        <span>Tax (16%):</span>
+                        <span id="tax">KSh 0.00</span>
+                    </div>
+                    <div class="total">
+                        <span>Total:</span>
+                        <span id="total">KSh 0.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+                    <button id="pay-cash" class="payment-btn">
+                        <i class="fas fa-money-bill-wave"></i> Cash
+                    </button>
+                    <button id="pay-mpesa" class="payment-btn">
+                        <i class="fas fa-mobile-alt"></i> M-Pesa
+                    </button>
+                    <button id="pay-card" class="payment-btn">
+                        <i class="fas fa-credit-card"></i> Card
+                    </button>
+                </div>
+
+                <div class="order-actions">
+                    <button id="hold-order" class="action-btn">
+                        <i class="fas fa-pause"></i> Hold
+                    </button>
+                    <button id="clear-order" class="action-btn">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button id="print-receipt" class="action-btn" disabled>
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-section">
+                <button id="dashboard-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+            </div>
+            <div class="footer-section">
+                <button id="reports-btn"><i class="fas fa-chart-bar"></i> Reports</button>
+            </div>
+            <div class="footer-section">
+                <button id="settings-btn"><i class="fas fa-cog"></i> Settings</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal">&times;</span>
+            <h3><i class="fas fa-cog"></i> Settings</h3>
+            
+            <div class="settings-tabs">
+                <button class="settings-tab active" data-tab="general">
+                    <i class="fas fa-sliders-h"></i> General
+                </button>
+                <button class="settings-tab" data-tab="appearance">
+                    <i class="fas fa-palette"></i> Appearance
+                </button>
+                <button class="settings-tab" data-tab="printer">
+                    <i class="fas fa-print"></i> Printer
+                </button>
+                <button class="settings-tab" data-tab="users">
+                    <i class="fas fa-users"></i> Users
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- General Settings -->
+                <div id="general-settings" class="settings-pane active">
+                    <h4>General Settings</h4>
+                    <div class="form-group">
+                        <label for="business-name">Business Name</label>
+                        <input type="text" id="business-name" class="form-control" placeholder="Enter business name">
+                    </div>
+                    <div class="form-group">
+                        <label for="business-address">Business Address</label>
+                        <textarea id="business-address" class="form-control" rows="2" placeholder="Enter business address"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="business-phone">Phone Number</label>
+                        <input type="tel" id="business-phone" class="form-control" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="business-email">Email</label>
+                        <input type="email" id="business-email" class="form-control" placeholder="Enter business email">
+                    </div>
+                    <div class="form-group">
+                        <label for="tax-rate">Tax Rate (%)</label>
+                        <input type="number" id="tax-rate" class="form-control" min="0" max="100" step="0.01" value="16">
+                    </div>
+                </div>
+                
+                <!-- Appearance Settings -->
+                <div id="appearance-settings" class="settings-pane">
+                    <h4>Appearance</h4>
+                    <div class="form-group">
+                        <label>Theme</label>
+                        <div class="theme-options">
+                            <button class="theme-option" data-theme="light">
+                                <i class="fas fa-sun"></i> Light
+                            </button>
+                            <button class="theme-option" data-theme="dark">
+                                <i class="fas fa-moon"></i> Dark
+                            </button>
+                            <button class="theme-option" data-theme="system">
+                                <i class="fas fa-desktop"></i> System
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Font Size</label>
+                        <select id="font-size" class="form-control">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Printer Settings -->
+                <div id="printer-settings" class="settings-pane">
+                    <h4>Printer Settings</h4>
+                    <div class="form-group">
+                        <label for="printer-name">Printer Name</label>
+                        <select id="printer-name" class="form-control">
+                            <option value="">Select a printer</option>
+                            <option value="default">Default Printer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="receipt-header">Receipt Header</label>
+                        <textarea id="receipt-header" class="form-control" rows="3" placeholder="Enter receipt header text"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="receipt-footer">Receipt Footer</label>
+                        <textarea id="receipt-footer" class="form-control" rows="3" placeholder="Enter receipt footer text"></textarea>
+                    </div>
+                    <button id="test-print" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Test Print
+                    </button>
+                </div>
+                
+                <!-- User Management -->
+                <div id="users-settings" class="settings-pane">
+                    <h4>User Management</h4>
+                    <div class="users-list">
+                        <div class="user-item">
+                            <span>Admin (admin@example.com)</span>
+                            <div class="user-actions">
+                                <button class="btn-icon" title="Edit User">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon text-danger" title="Delete User">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="add-user-btn" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+            </div>
+            
+            <div class="settings-footer">
+                <button id="save-settings" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button id="cancel-settings" class="btn btn-secondary">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Modal -->
+    <div id="reports-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close-modal">&times;</span>
+            <h3>Reports</h3>
+            
+            <div class="reports-controls">
+                <div class="report-type-selector">
+                    <button class="report-tab active" data-report="sales" data-toggle="tooltip" title="View sales summary and trends">
+                        <i class="fas fa-chart-line"></i> Sales Report
+                    </button>
+                    <button class="report-tab" data-report="inventory" data-toggle="tooltip" title="View current inventory status">
+                        <i class="fas fa-boxes"></i> Inventory
+                    </button>
+                    <button class="report-tab" data-report="payments" data-toggle="tooltip" title="View payment summaries">
+                        <i class="fas fa-credit-card"></i> Payments
+                    </button>
+                </div>
+                <div class="report-actions">
+                    <div class="date-range-container">
+                        <i class="far fa-calendar-alt"></i>
+                        <input type="text" id="report-date-range" class="form-control" placeholder="Select date range">
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button id="refresh-report" class="btn-icon" data-toggle="tooltip" title="Refresh report">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="export-report" class="btn-icon" data-toggle="tooltip" title="Export to CSV">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                        <button id="print-report" class="btn-icon" data-toggle="tooltip" title="Print report">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="report-loading" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+                <p>Generating report...</p>
+            </div>
+            
+            <div class="report-container">
+                <div id="sales-report" class="report-content active">
+                    <h4>Sales Summary</h4>
+                    <div class="report-summary">
+                        <div class="summary-card">
+                            <h5>Total Sales</h5>
+                            <p id="total-sales">KSh 0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Orders</h5>
+                            <p id="total-orders">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Average Order Value</h5>
+                            <p id="avg-order-value">KSh 0.00</p>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        <canvas id="sales-chart"></canvas>
+                    </div>
+                    <div class="report-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Order #</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Payment Method</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-report-data">
+                                <!-- Sales data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="inventory-report" class="report-content">
+                    <h4>Inventory Status</h4>
+                    <div class="inventory-summary">
+                        <div class="summary-card">
+                            <h5>Total Items</h5>
+                            <p id="total-items">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Low Stock Items</h5>
+                            <p id="low-stock-count">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Out of Stock</h5>
+                            <p id="out-of-stock-count">0</p>
+                        </div>
+                    </div>
+                    <div class="report-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Current Stock</th>
+                                    <th>Reorder Level</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-report-data">
+                                <!-- Inventory data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="payments-report" class="report-content">
+                    <h4>Payments Summary</h4>
+                    <div class="payment-summary">
+                        <div class="summary-card">
+                            <h5>Total Payments</h5>
+                            <p id="total-payments">KSh 0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Cash</h5>
+                            <p id="cash-payments">KSh 0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>M-Pesa</h5>
+                            <p id="mpesa-payments">KSh 0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h5>Card</h5>
+                            <p id="card-payments">KSh 0.00</p>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        <canvas id="payments-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Process Payment</h3>
+            <div id="payment-details">
+                <!-- Payment form will be loaded here based on payment method -->
+            </div>
+        </div>
+    </div>
+
+    <script id="menuData" type="application/json">
+        [
+
+            {"id": 1, "name": "Chicken Burger", "price": 650, "category": "food", "image": "image/chicken burger.avif"},
+            {"id": 2, "name": "Margherita Pizza", "price": 850, "category": "food", "image": "image/Margherita Pizza.avif"},
+            {"id": 3, "name": "Grilled Chicken", "price": 1200, "category": "food", "image": "image/Grilled Chicken.avif"},
+            {"id": 4, "name": "Caesar Salad", "price": 650, "category": "food", "image": "image/Caesar Salad.avif"},
+            {"id": 5, "name": "Coca Cola", "price": 150, "category": "drinks", "image": "image/Coca Cola.avif"},
+            {"id": 6, "name": "Fresh Orange Juice", "price": 250, "category": "drinks", "image": "image/Fresh Orange Juice.avif"},
+            {"id": 7, "name": "Iced Tea", "price": 200, "category": "drinks", "image": "image/Iced Tea.avif"},
+            {"id": 8, "name": "Chocolate Cake", "price": 350, "category": "desserts", "image": "image/Chocolate Cake.avif"},
+            {"id": 9, "name": "Ice Cream", "price": 250, "category": "desserts", "image": "image/Ice Cream.avif"},
+            {"id": 10, "name": "Tiramisu", "price": 400, "category": "desserts", "image": "image/Tiramisu.avif"},
+            {"id": 11, "name": "French Fries", "price": 300, "category": "food", "image": "image/French Fries.avif"},
+            {"id": 12, "name": "Mineral Water", "price": 100, "category": "drinks", "image": "imageMineral Water.avif"}
+        ]
+    </script>
+    <!-- Load jQuery first as it's a dependency for other scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Load moment.js before date range picker -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <!-- Load date range picker -->
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Main application script -->
+    <script src="ardyclassic.js"></script>
+    
+    <!-- Reports module -->
+    <script>
+        // Simple error handling for reports
+        window.addEventListener('error', function(e) {
+            console.error('Error in reports:', e.error);
+            alert('Error loading reports. Please check console for details.');
+        });
+    </script>
+    <script src="reports/reports.js"></script>
+    
+    <!-- Settings module -->
+    <script src="js/settings.js"></script>
+</body>
+</html>
